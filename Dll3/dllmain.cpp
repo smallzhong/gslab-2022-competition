@@ -65,14 +65,19 @@ EXTERN_C VOID VmxExitHandler(PGuestContext context)
 {
 	static bool flag = false; if (!flag) { flag = true; A("inline hook成功！"); }
 
-	float ygap = 0.118343, xgap = 0.064935;
+	float ygap = 0.118343, xgap = 0.064935; // 同一格子内部距离
+	float ybet = 0.023669, xbet = 0.077922; // 两个相邻格子之间的距离
+
 	PInfo info = (PInfo)(context->mRcx);
 
+#define ORIGIN_A1_X -0.7
+#define ORIGIN_A1_Y 0.8
 	static int ct = 0;
 	ct++;
-	if (ct == 1)
+	if (ct <= 11)
 	{
-		float a1x = -0.7, a1y = 0.8;
+		float a1x = ORIGIN_A1_X;
+		float a1y = ORIGIN_A1_Y - (ct - 1) * (ygap + ybet);
 		info->a1.x = a1x, info->a1.y = a1y;
 		info->a2.x = a1x + xgap, info->a2.y = a1y;
 		info->a3.x = a1x, info->a3.y = a1y - ygap;
@@ -99,28 +104,6 @@ EXTERN_C VOID VmxExitHandler(PGuestContext context)
 		}
 		memcpy(&last_info, info, sizeof(Info)); // 备份
 	}
-
-	/*
-		if (fabs(info->a1.x) > 1) info->a1.x -= (int)info->a1.x;
-	if (fabs(info->a2.x) > 1) info->a2.x -= (int)info->a2.x;
-	if (fabs(info->a3.x) > 1) info->a3.x -= (int)info->a3.x;
-	if (fabs(info->a4.x) > 1) info->a4.x -= (int)info->a4.x;
-
-	if (fabs(info->a1.y) > 1) info->a1.y -= (int)info->a1.y;
-	if (fabs(info->a2.y) > 1) info->a2.y -= (int)info->a2.y;
-	if (fabs(info->a3.y) > 1) info->a3.y -= (int)info->a3.y;
-	if (fabs(info->a4.y) > 1) info->a4.y -= (int)info->a4.y;*/
-
-
-		/*if (info->a1.x < 0) info->a1.x = -info->a1.x;
-	if (info->a2.x < 0) info->a2.x = -info->a2.x;
-	if (info->a3.x < 0) info->a3.x = -info->a3.x;
-	if (info->a4.x < 0) info->a4.x = -info->a4.x;
-
-	if (info->a1.y < 0) info->a1.y = -info->a1.y;
-	if (info->a2.y < 0) info->a2.y = -info->a2.y;
-	if (info->a3.y < 0) info->a3.y = -info->a3.y;
-	if (info->a4.y < 0) info->a4.y = -info->a4.y;*/
 }
 
 DWORD WINAPI mythread(LPVOID lpParameter)
