@@ -66,15 +66,15 @@ EXTERN_C VOID VmxExitHandler(PGuestContext context)
 	static bool flag = false; if (!flag) { flag = true; A("inline hook成功！"); }
 
 	float ygap = 0.118343, xgap = 0.064935; // 同一格子内部距离
-	float ybet = 0.023669, xbet = 0.077922; // 两个相邻格子之间的距离
+	float ybet = 0.023669, xbet = 0.012987; // 两个相邻格子之间的距离
 
 	PInfo info = (PInfo)(context->mRcx);
 
-#define ORIGIN_A1_X -0.7
-#define ORIGIN_A1_Y 0.8
+#define ORIGIN_A1_X -0.9
+#define ORIGIN_A1_Y 0.882840
 	static int ct = 0;
 	ct++;
-	if (ct <= 11)
+	if (ct <= 6)
 	{
 		float a1x = ORIGIN_A1_X;
 		float a1y = ORIGIN_A1_Y - (ct - 1) * (ygap + ybet);
@@ -83,6 +83,16 @@ EXTERN_C VOID VmxExitHandler(PGuestContext context)
 		info->a3.x = a1x, info->a3.y = a1y - ygap;
 		info->a4.x = a1x + xgap, info->a4.y = a1y - ygap;
 	}
+	else if (ct <= 9)
+	{
+		float a1x = ORIGIN_A1_X + (ct - 6) * (xgap + xbet);
+		float a1y = ORIGIN_A1_Y - (4 - 1) * (ygap + ybet);
+		info->a1.x = a1x, info->a1.y = a1y;
+		info->a2.x = a1x + xgap, info->a2.y = a1y;
+		info->a3.x = a1x, info->a3.y = a1y - ygap;
+		info->a4.x = a1x + xgap, info->a4.y = a1y - ygap;
+	}
+
 	if (ct == 42) ct = 0;
 
 	static int TT = 0;
