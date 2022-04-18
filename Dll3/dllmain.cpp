@@ -62,11 +62,23 @@ typedef struct _Info
 
 EXTERN_C VOID VmxExitHandler(PGuestContext context)
 {
-	static bool flag = false; if (!flag) { flag = true; DbgPrint("inline hook成功！"); }
+	static bool flag = false; if (!flag) { flag = true; A("inline hook成功！"); }
 
 	PInfo info = (PInfo)(context->mRcx);
 	
-	if (info->a1.x < 0) info->a1.x = -info->a1.x;
+	static int ct = 0;
+	if (ct < 42)
+	{
+		ct++;
+		A("a1.x = %f a1.y = %f a2.x = %f a2.y = %f a3.x = %f a3.y = %f a4.x = %f a4.y = %f",
+			info->a1.x, info->a1.y,
+			info->a2.x, info->a2.y,
+			info->a3.x, info->a3.y,
+			info->a4.x, info->a4.y);
+	}
+
+	
+		/*if (info->a1.x < 0) info->a1.x = -info->a1.x;
 	if (info->a2.x < 0) info->a2.x = -info->a2.x;
 	if (info->a3.x < 0) info->a3.x = -info->a3.x;
 	if (info->a4.x < 0) info->a4.x = -info->a4.x;
@@ -74,7 +86,7 @@ EXTERN_C VOID VmxExitHandler(PGuestContext context)
 	if (info->a1.y < 0) info->a1.y = -info->a1.y;
 	if (info->a2.y < 0) info->a2.y = -info->a2.y;
 	if (info->a3.y < 0) info->a3.y = -info->a3.y;
-	if (info->a4.y < 0) info->a4.y = -info->a4.y;
+	if (info->a4.y < 0) info->a4.y = -info->a4.y;*/
 }
 
 DWORD WINAPI mythread(LPVOID lpParameter)
