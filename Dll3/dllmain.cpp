@@ -43,7 +43,7 @@ typedef struct _v3
 
 typedef struct _v4
 {
-	float r, g, b, a;
+	DWORD r, g, b, a;
 }v4, * pv4;
 
 typedef struct _Info
@@ -65,8 +65,8 @@ EXTERN_C VOID HookHandler(PGuestContext context)
 {
 	static bool flag = false; if (!flag) { flag = true; A("inline hook成功！"); }
 
-	float ygap = 0.118343, xgap = 0.064935; // 同一格子内部距离
-	float ybet = 0.023669, xbet = 0.012987; // 两个相邻格子之间的距离
+	float  xgap = 0.064935, ygap = 0.118343; // 同一格子内部距离
+	float xbet = 0.012987, ybet = 0.023669; // 两个相邻格子之间的距离
 
 	PInfo info = (PInfo)(context->mRcx);
 
@@ -105,7 +105,7 @@ EXTERN_C VOID HookHandler(PGuestContext context)
 	else if (ct == 11)
 	{
 		float a1x = ORIGIN_A1_X + (8 - 6) * (xgap + xbet);
-		float a1y = ORIGIN_A1_Y - (3- 1) * (ygap + ybet);
+		float a1y = ORIGIN_A1_Y - (3 - 1) * (ygap + ybet);
 		info->a1.x = a1x, info->a1.y = a1y;
 		info->a2.x = a1x + xgap, info->a2.y = a1y;
 		info->a3.x = a1x, info->a3.y = a1y - ygap;
@@ -145,7 +145,7 @@ __declspec(dllexport) DWORD WINAPI mythread(LPVOID lpParameter)
 	// 在shellcode+30e的地方下hook
 	PUCHAR t = (PUCHAR)((*saddr) + 0x30e);
 	g_origin = (ULONG64)((*saddr) + 0x31c); // 需要跳回的地方
-	
+
 	char bufcode[] = {
 					0xFF, 0x25, 0x00, 0x00, 0x00, 0x00,
 					0x00, 0x00,
@@ -154,9 +154,7 @@ __declspec(dllexport) DWORD WINAPI mythread(LPVOID lpParameter)
 					0x00, 0x00,
 	};
 
-	//*(PULONG64)&bufcode[6] = (ULONG64)HookHandler;
 	*(PULONG64)&bufcode[6] = (ULONG64)AsmHookHandler;
-	//*(PULONG64)&bufcode[7] = (ULONG64)HookHandler;
 
 	DWORD old_protect = 0;
 	VirtualProtect(t, 0x1000, PAGE_EXECUTE_READWRITE, &old_protect);
