@@ -1,6 +1,6 @@
 .code
 
-extern VmxExitHandler:proc
+extern HookHandler:proc
 EXTERN g_origin:dq
 
 AsmGetGdtTable proc
@@ -59,7 +59,7 @@ AsmReadLDTR proc
 AsmReadLDTR endp
 
 
-AsmVmxExitHandler proc
+AsmHookHandler proc
 	push r15;
 	push r14;
 	push r13;
@@ -79,7 +79,7 @@ AsmVmxExitHandler proc
 	
 	mov rcx,rsp;
 	sub rsp,0100h
-	call VmxExitHandler
+	call HookHandler
 	add rsp,0100h;
 
 	pop rax;
@@ -104,7 +104,7 @@ AsmVmxExitHandler proc
 	 mov     rax, [r14]
 	 mov     rdx, [rsp+304]
 	jmp g_origin ;跳回到需要跳到的位置
-AsmVmxExitHandler endp
+AsmHookHandler endp
 
 myint3 proc
 	int 3

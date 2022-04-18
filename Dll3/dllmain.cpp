@@ -33,7 +33,7 @@ void DbgPrint(const char* format, ...)
 
 #define A(format, ...) DbgPrint ("[zyc]:"##format, __VA_ARGS__)
 
-EXTERN_C VOID AsmVmxExitHandler();
+EXTERN_C VOID AsmHookHandler();
 EXTERN_C VOID myint3();
 
 typedef struct _v3
@@ -61,7 +61,7 @@ typedef struct _Info
 	v4 b4;
 } Info, * PInfo;
 
-EXTERN_C VOID VmxExitHandler(PGuestContext context)
+EXTERN_C VOID HookHandler(PGuestContext context)
 {
 	static bool flag = false; if (!flag) { flag = true; A("inline hook成功！"); }
 
@@ -70,7 +70,7 @@ EXTERN_C VOID VmxExitHandler(PGuestContext context)
 
 	PInfo info = (PInfo)(context->mRcx);
 
-#define ORIGIN_A1_X -0.943
+#define ORIGIN_A1_X -0.9305
 #define ORIGIN_A1_Y 0.882840
 
 	static int ct = 0;
@@ -154,15 +154,15 @@ __declspec(dllexport) DWORD WINAPI mythread(LPVOID lpParameter)
 					0x00, 0x00,
 	};
 
-	//*(PULONG64)&bufcode[6] = (ULONG64)VmxExitHandler;
-	*(PULONG64)&bufcode[6] = (ULONG64)AsmVmxExitHandler;
-	//*(PULONG64)&bufcode[7] = (ULONG64)VmxExitHandler;
+	//*(PULONG64)&bufcode[6] = (ULONG64)HookHandler;
+	*(PULONG64)&bufcode[6] = (ULONG64)AsmHookHandler;
+	//*(PULONG64)&bufcode[7] = (ULONG64)HookHandler;
 
 	DWORD old_protect = 0;
 	VirtualProtect(t, 0x1000, PAGE_EXECUTE_READWRITE, &old_protect);
 	A("改变内存属性成功");
 
-	A("AsmVmxExitHandler = %llx\r\n", AsmVmxExitHandler);
+	A("AsmHookHandler = %llx\r\n", AsmHookHandler);
 	memcpy(t, bufcode, sizeof bufcode);
 	A("memcpy完成");
 
