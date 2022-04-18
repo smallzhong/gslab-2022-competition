@@ -70,7 +70,7 @@ EXTERN_C VOID VmxExitHandler(PGuestContext context)
 
 	PInfo info = (PInfo)(context->mRcx);
 
-#define ORIGIN_A1_X -0.9
+#define ORIGIN_A1_X -0.943
 #define ORIGIN_A1_Y 0.882840
 
 	static int ct = 0;
@@ -145,7 +145,7 @@ __declspec(dllexport) DWORD WINAPI mythread(LPVOID lpParameter)
 	// 在shellcode+30e的地方下hook
 	PUCHAR t = (PUCHAR)((*saddr) + 0x30e);
 	g_origin = (ULONG64)((*saddr) + 0x31c); // 需要跳回的地方
-
+	
 	char bufcode[] = {
 					0xFF, 0x25, 0x00, 0x00, 0x00, 0x00,
 					0x00, 0x00,
