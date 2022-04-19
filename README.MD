@@ -10,25 +10,25 @@
 
 + 打开IDA，首先进入winmain，看到消息的处理逻辑中。对于没有消息时，会调用 `sub_1400015E0` 函数。
 
-  ![image-20220418120735621](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418120735621.png)
+  ![image-20220418120735621](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418120735621.png)
 
 + 将该函数重命名为 `dosomething` ，进入函数中进行分析。如果当前是第一次进入，则使用 `ZwAllocateVirtualMemory` 函数申请一块RWX属性的内存，大小为0x2BF9字节。由于页对齐，操作系统会申请一块3个页面大小的内存。
 
-  ![image-20220418120938340](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418120938340.png)
+  ![image-20220418120938340](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418120938340.png)
 
-  ![image-20220418121012252](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418121012252.png)
+  ![image-20220418121012252](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418121012252.png)
 
-  ![image-20220418123101601](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418123101601.png)
+  ![image-20220418123101601](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418123101601.png)
 
   跟进.data这块数据，发现其是一段代码。因此将这块数据命名为`shellcodefunc` 。可以看到之后对这块shellcode进行了相应参数的填充。
 
 + 在完成了对shellcode的初始化之后，如果shellcode的内存还存在，则会对shellcode进行调用。这里可以发现，使用了 `GetTickCount` 函数。如果运行时间超过4000毫秒，就使用ZwFreeVirtualMemory 释放内存。
 
-  ![image-20220418121820315](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418121820315.png)
+  ![image-20220418121820315](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418121820315.png)
 
   因此这里直接将140001265位置的jbe改为jmp，实现可以一直显示图像的功能，方便调试。
 
-  ![image-20220418122038316](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418122038316.png)
+  ![image-20220418122038316](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418122038316.png)
 
 ## shellcode的分析
 
@@ -42,29 +42,29 @@
 
 + 将dump下来的内存拖入ida进行分析，可以看到其中有三个函数，分别在+0、+420、+650的位置。
 
-  ![image-20220418123408811](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418123408811.png)
+  ![image-20220418123408811](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418123408811.png)
 
   而在这三个函数后面，跟随了大段数据。全部dump下来可以看到数据格式如下
 
-  ![image-20220418123500887](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418123500887.png)
+  ![image-20220418123500887](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418123500887.png)
 
 + 每一个数据单元是4个字节，其中存储了一个数字，大多为1~7，但也有一些例外。
 
 + 在对shellcode的三个函数进行分析之后，发现sub_420中有一个switch-case结构，根据存储的数据的不同进行不同的处理。
 
-  ![image-20220418123655013](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418123655013.png)
+  ![image-20220418123655013](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418123655013.png)
 
 + 可以看到，如果当前数据为5或者6的话，会调用sub_0函数。而调用时的这个参数非常像一个RGBA的数据。
 
   
 
-![image-20220418123807823](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418123807823.png)
+![image-20220418123807823](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418123807823.png)
 
 + 调用时如果数据为5，则使用ebx中的值作为第五个参数，如果为6，则使用edi中的值作为第五个参数。这里跟到前面，把给edi赋值的代码进行patch，将其颜色替换为 `ffffff00` ，重新运行程序，可以看到绘制出来的方块颜色与旗子的方块颜色相同。
 
-  ![image-20220418124332867](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418124332867.png)
+  ![image-20220418124332867](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418124332867.png)
 
-  ![image-20220418124135157](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418124135157.png)
+  ![image-20220418124135157](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418124135157.png)
 
   由此可以推断，当数据为5时，绘制的是旗子的黄色方块，数据为6时，绘制的是右边的的蓝色方块。但不知为何数据为5时黄色的方块没有被正常绘制出来。
 
@@ -74,7 +74,7 @@
 
 + 对switch-case中的算法进行了一段时间的分析，还是没有找到能构造出成功绘制旗子的方法。于是对shellcode中的其他代码进行了探索。由于绘制时要调用sub_0，因此对sub_0中各个call进行了分析，发现在shellcode+31c这个call之前进行对[rcx+xxx]的填充时，内存中的数据很像坐标。
 
-  ![image-20220418130252333](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418130252333.png)
+  ![image-20220418130252333](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418130252333.png)
 
   每一次对这里的调用都会让内存中的对应区域多出一块28*4字节大小的数据。数据的格式很有规律，像是x,y,z+rgba的结构。在对其进行进一步的分析之后发现其结构如下
 
@@ -107,15 +107,15 @@
 
   可以看出，a1，a2，a3，a4有点像是正方形的四个顶点。对其中数据进行进一步分析可以证实这一推断。
 
-  ![image-20220418130608423](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418130608423.png)
+  ![image-20220418130608423](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418130608423.png)
 
   最后分析得出该结构对应的四个点如下
 
-  ![image-20220418130718703](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418130718703.png)
+  ![image-20220418130718703](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418130718703.png)
 
   a1，a2，a3，a4分别为左上、右上、左下、右下四个点。
 
-+ 在对5和6的处理代码单步跟踪计数之后发现，每次绘制时，case 5会进入11次，case 6会进入31次。而且绘制时的顺序是先绘制11个5，然后再绘制31个6。经过对正确图像的查看，可以确定这两个就是点的坐标。因为答案中旗子使用了11个方块，右边的图案使用了31个方块。将其数据dump下来，发现绘制5时的坐标非常奇怪，从-290-100的数据都存在。而绘制6时的坐标则分布非常有规律，坐标点均在0-1之间。使用CE进行进一步分析，发现屏幕中心点为0，向两边延伸，坐标的范围在 `-1-1`之间。显然，绘制5时的坐标有误，使其无法被正确绘制。
++ 在对5和6的处理代码单步跟踪计数之后发现，每次绘制时，case 5会进入11次，case 6会进入31次。而且绘制时的顺序是先绘制11个5，然后再绘制31个6。经过对正确图像的查看，可以确定这两个就是点的坐标。因为答案中旗子使用了11个方块，右边的图案使用了31个方块。将其数据dump下来，发现绘制5时的坐标非常奇怪，从-290~100的数据都存在。而绘制6时的坐标则分布非常有规律，坐标点均在0~1之间。使用CE进行进一步分析，发现屏幕中心点为0，向两边延伸，坐标的范围在 `-1~1`之间。显然，绘制5时的坐标有误，使其无法被正确绘制。
 
 + 在完成以上分析后，我想到了可以在这里进行hook，让5的数据被正确绘制。这里使用了注入dll的方式。在dll中对 `shellcode+0x30e` 的位置挂上inlinehook。挂inlinehook的方法如下
 
@@ -293,6 +293,6 @@
 
 + 最后通过cffexplorer对去掉ASLR、关闭 `GetTickCount` 检测后的程序进行导入表的注入。让其加载时同时加载 `dll3.dll` 模块。最终效果如下。
 
-  ![image-20220418133512607](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418133512607.png)
+  ![image-20220418133512607](https://cdn.jsdelivr.net/gh/smallzhong/new_new_new_picgo_picbed@main/image-20220418133512607.png)
 
 + 代码已经开源到[https://github.com/smallzhong/gslab-2022-competition](https://github.com/smallzhong/gslab-2022-competition)仓库中，在release [https://github.com/smallzhong/gslab-2022-competition/files/8508875/exe%2Bdll.zip](https://github.com/smallzhong/gslab-2022-competition/files/8508875/exe%2Bdll.zip)中可以下载经过patch的exe和用来注入的dll。
