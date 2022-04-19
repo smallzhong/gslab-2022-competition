@@ -78,7 +78,7 @@
 
   ![image-20220418130252333](https://raw.githubusercontent.com/smallzhong/new_new_new_picgo_picbed/main/image-20220418130252333.png)
 
-  每一次对这里的调用都会让内存中的对应区域多出一块28*4字节大小的数据。数据的格式很有规律，像是x,y,z+rgba的结构。在对其进行进一步的分析之后发现，其结构如下
+  每一次对这里的调用都会让内存中的对应区域多出一块28*4字节大小的数据。数据的格式很有规律，像是x,y,z+rgba的结构。在对其进行进一步的分析之后发现其结构如下
 
   ```cpp
   typedef struct _v3
