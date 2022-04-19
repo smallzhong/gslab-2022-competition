@@ -1,5 +1,3 @@
-[TOC]
-
 # 2022腾讯游戏安全竞赛PC赛道初赛writeup
 
 + 比赛官网[https://gslab.qq.com/html/competition/2022/race-pre.htm](https://gslab.qq.com/html/competition/2022/race-pre.htm)，题目下载地址[https://gslab.qq.com/html/competition/2022/doc/PC%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%AE%89%E5%85%A8-%E5%88%9D%E8%B5%9B%E8%B5%9B%E9%A2%98.zip](https://gslab.qq.com/html/competition/2022/doc/PC%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%AE%89%E5%85%A8-%E5%88%9D%E8%B5%9B%E8%B5%9B%E9%A2%98.zip)
