@@ -61,6 +61,40 @@ typedef struct _Info
 	v4 b4;
 } Info, * PInfo;
 
+float getScreenZoom()
+{
+	static float fRes = 0;
+	if (fRes != 0) return fRes;
+
+	// 获取窗口当前显示的监视器
+	HWND hWnd = GetDesktopWindow();//根据需要可以替换成自己程序的句柄 
+	HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+
+	// 获取监视器逻辑宽度与高度
+	MONITORINFOEX miex;
+	miex.cbSize = sizeof(miex);
+	GetMonitorInfo(hMonitor, &miex);
+	int cxLogical = (miex.rcMonitor.right - miex.rcMonitor.left);
+	int cyLogical = (miex.rcMonitor.bottom - miex.rcMonitor.top);
+
+	// 获取监视器物理宽度与高度
+	DEVMODE dm;
+	dm.dmSize = sizeof(dm);
+	dm.dmDriverExtra = 0;
+	EnumDisplaySettings(miex.szDevice, ENUM_CURRENT_SETTINGS, &dm);
+	int cxPhysical = dm.dmPelsWidth;
+	int cyPhysical = dm.dmPelsHeight;
+
+	//缩放比例计算
+	double horzScale = ((double)cxPhysical / (double)cxLogical);
+	double vertScale = ((double)cyPhysical / (double)cyLogical);
+
+	fRes = (float)horzScale;
+	//返回缩放比
+	A("fres = %f", fRes);
+	return fRes;
+}
+
 EXTERN_C VOID HookHandler(PGuestContext context)
 {
 	static bool flag = false; if (!flag) { flag = true; A("inline hook成功！"); }
@@ -68,17 +102,30 @@ EXTERN_C VOID HookHandler(PGuestContext context)
 	float  xgap = 0.064935, ygap = 0.118343; // 同一格子内部距离
 	float xbet = 0.012987, ybet = 0.023669; // 两个相邻格子之间的距离
 
-	PInfo info = (PInfo)(context->mRcx);
+	float trans = getScreenZoom() / 1.25;
+	xgap *= trans, ygap *= trans, xbet *= trans, ybet *= trans; // 进行缩放
 
-#define ORIGIN_A1_X -0.9305
-#define ORIGIN_A1_Y 0.882840
+	float origin_a1_x = -0.9305;
+	float origin_a1_y = 0.906692;
+#define eps 1e-2
+	if (fabs(getScreenZoom() - 1.00) < eps) origin_a1_y = 0.906692; // 缩放100%
+	else if (fabs(getScreenZoom() - 1.25) < eps) origin_a1_y = 0.882840; // 缩放125%
+	else if (fabs(getScreenZoom() - 1.50) < eps) origin_a1_y = 0.858773; // 缩放150%
+	else if (fabs(getScreenZoom() - 1.75) < eps) origin_a1_y = 0.834448; // 缩放175%
+
+	if (fabs(getScreenZoom() - 1.00) < eps) origin_a1_x = -0.9472; // 缩放100%
+	else if (fabs(getScreenZoom() - 1.25) < eps) origin_a1_x = -0.9305;  // 缩放125%
+	else if (fabs(getScreenZoom() - 1.50) < eps) origin_a1_x = -0.9236;  // 缩放150%
+	else if (fabs(getScreenZoom() - 1.75) < eps) origin_a1_x = -0.9139;  // 缩放175%
+
+	PInfo info = (PInfo)(context->mRcx);
 
 	static int ct = 0;
 	ct++;
 	if (ct <= 6)
 	{
-		float a1x = ORIGIN_A1_X;
-		float a1y = ORIGIN_A1_Y - (ct - 1) * (ygap + ybet);
+		float a1x = origin_a1_x;
+		float a1y = origin_a1_y - (ct - 1) * (ygap + ybet);
 		info->a1.x = a1x, info->a1.y = a1y;
 		info->a2.x = a1x + xgap, info->a2.y = a1y;
 		info->a3.x = a1x, info->a3.y = a1y - ygap;
@@ -86,8 +133,8 @@ EXTERN_C VOID HookHandler(PGuestContext context)
 	}
 	else if (ct <= 9)
 	{
-		float a1x = ORIGIN_A1_X + (ct - 6) * (xgap + xbet);
-		float a1y = ORIGIN_A1_Y - (4 - 1) * (ygap + ybet);
+		float a1x = origin_a1_x + (ct - 6) * (xgap + xbet);
+		float a1y = origin_a1_y - (4 - 1) * (ygap + ybet);
 		info->a1.x = a1x, info->a1.y = a1y;
 		info->a2.x = a1x + xgap, info->a2.y = a1y;
 		info->a3.x = a1x, info->a3.y = a1y - ygap;
@@ -95,8 +142,8 @@ EXTERN_C VOID HookHandler(PGuestContext context)
 	}
 	else if (ct == 10)
 	{
-		float a1x = ORIGIN_A1_X + (7 - 6) * (xgap + xbet);
-		float a1y = ORIGIN_A1_Y - (2 - 1) * (ygap + ybet);
+		float a1x = origin_a1_x + (7 - 6) * (xgap + xbet);
+		float a1y = origin_a1_y - (2 - 1) * (ygap + ybet);
 		info->a1.x = a1x, info->a1.y = a1y;
 		info->a2.x = a1x + xgap, info->a2.y = a1y;
 		info->a3.x = a1x, info->a3.y = a1y - ygap;
@@ -104,8 +151,8 @@ EXTERN_C VOID HookHandler(PGuestContext context)
 	}
 	else if (ct == 11)
 	{
-		float a1x = ORIGIN_A1_X + (8 - 6) * (xgap + xbet);
-		float a1y = ORIGIN_A1_Y - (3 - 1) * (ygap + ybet);
+		float a1x = origin_a1_x + (8 - 6) * (xgap + xbet);
+		float a1y = origin_a1_y - (3 - 1) * (ygap + ybet);
 		info->a1.x = a1x, info->a1.y = a1y;
 		info->a2.x = a1x + xgap, info->a2.y = a1y;
 		info->a3.x = a1x, info->a3.y = a1y - ygap;
