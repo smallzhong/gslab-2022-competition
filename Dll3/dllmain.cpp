@@ -122,49 +122,77 @@ EXTERN_C VOID HookHandler(PGuestContext context)
 
 	static int ct = 0;
 	ct++;
-	if (ct <= 6)
+
+	static int wrong_ct = 0;
+	bool wrong_flag = false;
+
+	if (info->a1.x < -1.0 || info->a1.x > 1.0 ||
+		info->a2.x < -1.0 || info->a2.x > 1.0 ||
+		info->a3.x < -1.0 || info->a3.x > 1.0 ||
+		info->a4.x < -1.0 || info->a4.x > 1.0 ||
+
+		info->a1.y < -1.0 || info->a1.y > 1.0 ||
+		info->a2.y < -1.0 || info->a2.y > 1.0 ||
+		info->a3.y < -1.0 || info->a3.y > 1.0 ||
+		info->a4.y < -1.0 || info->a4.y > 1.0
+		)
 	{
-		float a1x = origin_a1_x;
-		float a1y = origin_a1_y - (ct - 1) * (ygap + ybet);
-		info->a1.x = a1x, info->a1.y = a1y;
-		info->a2.x = a1x + xgap, info->a2.y = a1y;
-		info->a3.x = a1x, info->a3.y = a1y - ygap;
-		info->a4.x = a1x + xgap, info->a4.y = a1y - ygap;
+		wrong_flag = true;
+		wrong_ct++;
 	}
-	else if (ct <= 9)
+
+	if (wrong_flag)
 	{
-		float a1x = origin_a1_x + (ct - 6) * (xgap + xbet);
-		float a1y = origin_a1_y - (4 - 1) * (ygap + ybet);
-		info->a1.x = a1x, info->a1.y = a1y;
-		info->a2.x = a1x + xgap, info->a2.y = a1y;
-		info->a3.x = a1x, info->a3.y = a1y - ygap;
-		info->a4.x = a1x + xgap, info->a4.y = a1y - ygap;
-	}
-	else if (ct == 10)
-	{
-		float a1x = origin_a1_x + (7 - 6) * (xgap + xbet);
-		float a1y = origin_a1_y - (2 - 1) * (ygap + ybet);
-		info->a1.x = a1x, info->a1.y = a1y;
-		info->a2.x = a1x + xgap, info->a2.y = a1y;
-		info->a3.x = a1x, info->a3.y = a1y - ygap;
-		info->a4.x = a1x + xgap, info->a4.y = a1y - ygap;
-	}
-	else if (ct == 11)
-	{
-		float a1x = origin_a1_x + (8 - 6) * (xgap + xbet);
-		float a1y = origin_a1_y - (3 - 1) * (ygap + ybet);
-		info->a1.x = a1x, info->a1.y = a1y;
-		info->a2.x = a1x + xgap, info->a2.y = a1y;
-		info->a3.x = a1x, info->a3.y = a1y - ygap;
-		info->a4.x = a1x + xgap, info->a4.y = a1y - ygap;
+		if (wrong_ct <= 6)
+		{
+			float a1x = origin_a1_x;
+			float a1y = origin_a1_y - (wrong_ct - 1) * (ygap + ybet);
+			info->a1.x = a1x, info->a1.y = a1y;
+			info->a2.x = a1x + xgap, info->a2.y = a1y;
+			info->a3.x = a1x, info->a3.y = a1y - ygap;
+			info->a4.x = a1x + xgap, info->a4.y = a1y - ygap;
+		}
+		else if (wrong_ct <= 9)
+		{
+			float a1x = origin_a1_x + (wrong_ct - 6) * (xgap + xbet);
+			float a1y = origin_a1_y - (4 - 1) * (ygap + ybet);
+			info->a1.x = a1x, info->a1.y = a1y;
+			info->a2.x = a1x + xgap, info->a2.y = a1y;
+			info->a3.x = a1x, info->a3.y = a1y - ygap;
+			info->a4.x = a1x + xgap, info->a4.y = a1y - ygap;
+		}
+		else if (wrong_ct == 10)
+		{
+			float a1x = origin_a1_x + (7 - 6) * (xgap + xbet);
+			float a1y = origin_a1_y - (2 - 1) * (ygap + ybet);
+			info->a1.x = a1x, info->a1.y = a1y;
+			info->a2.x = a1x + xgap, info->a2.y = a1y;
+			info->a3.x = a1x, info->a3.y = a1y - ygap;
+			info->a4.x = a1x + xgap, info->a4.y = a1y - ygap;
+		}
+		else if (wrong_ct == 11)
+		{
+			float a1x = origin_a1_x + (8 - 6) * (xgap + xbet);
+			float a1y = origin_a1_y - (3 - 1) * (ygap + ybet);
+			info->a1.x = a1x, info->a1.y = a1y;
+			info->a2.x = a1x + xgap, info->a2.y = a1y;
+			info->a3.x = a1x, info->a3.y = a1y - ygap;
+			info->a4.x = a1x + xgap, info->a4.y = a1y - ygap;
+			wrong_ct = 0;
+		}
 	}
 
 	if (ct == 42) ct = 0;
 
 	static int TT = 0;
 	static Info last_info = { 0 };
+
+	bool aaa = false;
 	if (TT < 42)
 	{
+		if (aaa) return;
+
+
 		TT++;
 		if (TT == 12) A("");
 		A("a1.x = %f a1.y = %f a2.x = %f a2.y = %f a3.x = %f a3.y = %f a4.x = %f a4.y = %f",
@@ -172,18 +200,21 @@ EXTERN_C VOID HookHandler(PGuestContext context)
 			info->a2.x, info->a2.y,
 			info->a3.x, info->a3.y,
 			info->a4.x, info->a4.y);
+
+
 		/*A("左上角坐标：%f %f，上下间距：%f 左右间距：%f\n", info->a1.x, info->a1.y, info->a1.y - info->a3.y, info->a2.x - info->a1.x);
 		if (TT != 1)
 		{
 			A("左右间隔：%f 上下间隔：%f", info->a1.x - last_info.a1.x,
 				last_info.a4.y - info->a2.y);
 		}*/
-		memcpy(&last_info, info, sizeof(Info)); // 备份
+		//memcpy(&last_info, info, sizeof(Info)); // 备份
 	}
 }
 
 __declspec(dllexport) DWORD WINAPI mythread(LPVOID lpParameter)
 {
+
 	A("in mythread\n");
 	PULONG64 saddr = (PULONG64)0x140008308;
 	while (*saddr == 0); // 等待shellcode被申请成功
@@ -225,12 +256,17 @@ __declspec(dllexport) BOOL APIENTRY DllMain(HMODULE hModule,
 	{
 	case DLL_PROCESS_ATTACH:
 	{
-		HANDLE t = ::CreateThread(NULL, 0, mythread, NULL, 0, NULL);
+		//HANDLE t = ::CreateThread(NULL, 0, mythread, NULL, 0, NULL);
+		A("注入成功，测试。1");
+		A("PULONG64 p_g_origin = 0x%llx; // 填入", &g_origin);
+		A("ULONG64 AsmHookHandler = 0x%llx; // 填入", AsmHookHandler);
 		break;
 	}
 	break;
 	case DLL_THREAD_ATTACH:
 	{
+		A("注入成功，测试。2");
+		break;
 	}
 	break;
 	case DLL_THREAD_DETACH:
